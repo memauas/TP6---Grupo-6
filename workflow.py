@@ -1,6 +1,7 @@
 from patient import create_patient_resource
 from base import send_resource_to_hapi_fhir, get_resource_from_hapi_fhir
 from base import search_patient_by_identifier
+from allergy import create_allergy_resource
 
 if __name__ == "__main__":
     # Parámetros del paciente (se puede dejar algunos vacíos)
@@ -19,6 +20,15 @@ if __name__ == "__main__":
     #if patient_id:
      #   get_resource_from_hapi_fhir(patient_id,'Patient')
 
-
     # Buscar el paciente creado anteriormente
     pacientes_encontrados = search_patient_by_identifier(document_number)
+
+    # Crear, enviar y leer el recurso AllergyIntolerance asociado al paciente encontrado
+    if pacientes_encontrados:
+        patient_id = pacientes_encontrados[0]["id"]
+        
+        allergy = create_allergy_resource(patient_id=patient_id)
+        allergy_id = send_resource_to_hapi_fhir(allergy, "AllergyIntolerance")
+
+        if allergy_id:
+            get_resource_from_hapi_fhir(allergy_id, "AllergyIntolerance")

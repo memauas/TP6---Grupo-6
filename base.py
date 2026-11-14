@@ -4,18 +4,23 @@ import json
 import requests
 
 # Enviar el recurso FHIR al servidor HAPI FHIR
-def send_resource_to_hapi_fhir(resource,resource_type):
+def send_resource_to_hapi_fhir(resource, resource_type):
     url = f"https://hapi.fhir.org/baseR4/{resource_type}"
-    headers = {"Content-Type": "application/fhir+json"}
-    resource_json = resource.json()
+    headers = {
+        "Content-Type": "application/fhir+json; charset=utf-8",
+        "Accept": "application/fhir+json"
+    }
 
-    response = requests.post(url, headers=headers, data=resource_json)
+    # Serializar a JSON string y codificar a UTF-8 para evitar cortes con acentos ("ó", "á", etc.)
+    json_payload = resource.model_dump_json().encode("utf-8")
 
-    if response.status_code == 201:
-        print("Recurso creado exitosamente")
-        
-        # Devolver el ID del recurso creado
-        return response.json()['id']
+    response = requests.post(url, headers=headers, data=json_payload)
+
+    if response.status_code in (200, 201):
+        created_resource = response.json()
+        resource_id = created_resource.get("id")
+        print(f"Recurso {resource_type} creado exitosamente con ID: {resource_id}")
+        return resource_id
     else:
         print(f"Error al crear el recurso: {response.status_code}")
         print(response.json())
