@@ -6,7 +6,7 @@ from fhir.resources.R4B.reference import Reference
 
 def create_allergy_resource(
     patient_id,
-    substance_code="91936005",
+    substance_code="764146007",
     substance_display="Alergia a la penicilina",
     category="medication",
     criticality="high",
